@@ -6,7 +6,6 @@
 #include <ctime>
 using namespace std;
 
-
 class UserDetails
 {
 private:
@@ -42,7 +41,6 @@ public:
     UserDetails(string fname = "userDetails.txt") : filename(fname) {}
     // member function of class userDetails to register the user
 
-    
     void registerUser()
     {
         string username, password, phonenumber;
@@ -59,7 +57,7 @@ public:
             cout << "Enter phonenumber: ";
             cin >> phonenumber;
 
-            phoneCheck = true; 
+            phoneCheck = true;
             if (phonenumber.size() != 10)
             {
                 cout << "❌ Phone number must be exactly 10 digits.\n";
@@ -77,8 +75,6 @@ public:
                 }
             }
         } while (!phoneCheck);
-
-
 
         string id = generateUniqueID();
         ofstream file(filename, ios::app);
@@ -215,6 +211,145 @@ public:
     }
 };
 
+class EnterpriseDetails
+{
+private:
+    string filePath;
+    string entId, entName, entPass, entContact;
+
+    // id generator :
+    string createUniqueID()
+    {
+        srand(time(0));
+        string newId;
+        bool alreadyExists;
+        do
+        {
+            alreadyExists = false;
+            int number = 20000 + rand() % 80000;
+            newId = "E" + to_string(number);
+
+            ifstream fin(filePath);
+            string line, idFromFile;
+            while (getline(fin, line))
+            {
+                stringstream ss(line);
+                getline(ss, idFromFile, ',');
+                if (idFromFile == newId)
+                {
+                    alreadyExists = true;
+                    break;
+                }
+            }
+            fin.close();
+        } while (alreadyExists);
+
+        return newId;
+    }
+
+public:
+    //default constructor 
+    EnterpriseDetails(string fname = "EnterpriseDetails.txt") : filePath(fname) {}
+    //verification of the details`
+    friend bool verifyEnterprise(const EnterpriseDetails &obj, string givenId, string givenPass);
+    // enterprise regis.
+    void registerEnterprise()
+    {
+        cout << "Enter Enterprise Name: ";
+        cin.ignore();
+        getline(cin, entName);
+
+        cout << "Create password: ";
+        cin >> entPass;
+
+        cout << "Enter 10-digit Contact Number: ";
+        while (true)
+        {
+            cin >> entContact;
+            bool valid = true;
+
+            if (entContact.length() != 10)
+                valid = false;
+            else
+            {
+                for (char c : entContact)
+                {
+                    if (!isdigit(c))
+                    {
+                        valid = false;
+                        break;
+                    }
+                }
+            }
+
+            if (valid)
+                break;
+            else
+                cout << "Invalid contact number. Please enter again: ";
+        }
+
+        entId = createUniqueID();
+        ofstream fout(filePath, ios::app);
+        if (fout.is_open())
+        {
+            fout << entId << "," << entName << "," << entPass << "," << entContact << "\n";
+            fout.close();
+            cout << "\nRegistration Completed Successfully!\n";
+            cout << "Your Enterprise ID: " << entId << "\n";
+        }
+        else
+        {
+            cout << "File error: Could not open storage file.\n";
+        }
+    }
+
+    string getId() const { return entId; }
+    string getPassword() const { return entPass; }
+
+    // login for enterprise
+    bool loginEnterprise()
+    {
+        string inputId, inputPass;
+        cout << "Enter Enterprise ID: ";
+        cin >> inputId;
+        cout << "Enter password: ";
+        cin >> inputPass;
+
+        ifstream fin(filePath);
+        string line, fid, fname, fpass, fcontact;
+
+        while (getline(fin, line))
+        {
+            stringstream ss(line);
+            getline(ss, fid, ',');
+            getline(ss, fname, ',');
+            getline(ss, fpass, ',');
+            getline(ss, fcontact, ',');
+
+            EnterpriseDetails temp(filePath);
+            temp.entId = fid;
+            temp.entName = fname;
+            temp.entPass = fpass;
+            temp.entContact = fcontact;
+
+            if (verifyEnterprise(temp, inputId, inputPass))
+            {
+                cout << "\nLogin successful! Welcome, " << fname << ".\n";
+                return true;
+            }
+        }
+
+        cout << "Login failed: Invalid credentials.\n";
+        return false;
+    }
+};
+
+// friend func def using 
+bool verifyEnterprise(const EnterpriseDetails &obj, string givenId, string givenPass)
+{
+    return (obj.entId == givenId && obj.entPass == givenPass);
+}
+
 int main()
 {
     cout << "Welcome to Vehicle Rental System\n";
@@ -265,6 +400,30 @@ int main()
         if (portalChoice == 2)
         {
             cout << "You have accessed the Service Provider Portal.\n";
+            cout << "1. Register Enterprise\n";
+            cout << "2. Login Enterprise\n";
+            cout << "Enter your choice (1 or 2): ";
+            int enterpriseOptn;
+            cin >> enterpriseOptn;
+
+            EnterpriseDetails *enterprisePtr = new EnterpriseDetails();
+
+            switch (enterpriseOptn)
+            {
+            case 1:
+                enterprisePtr->registerEnterprise();
+                break;
+
+            case 2:
+                enterprisePtr->loginEnterprise();
+                break;
+
+            default:
+                cout << "Invalid input! Try once again!\n";
+                break;
+            }
+
+            delete enterprisePtr;
         }
     }
     catch (const std::exception &e)
