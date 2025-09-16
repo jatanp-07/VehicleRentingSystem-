@@ -1,0 +1,11 @@
+Enterprise:ZoomRide Rentals|Owner:Rahul Verma|Phone:9876543210
+Company:Tata
+Model:Nexon|Price:1500|Number:GJ01AB1234|Color:Blue
+Model:Harrier|Price:2000|Number:GJ01AB5678|Color:White
+Company:Mahindra
+Model:XUV700|Price:2200|Number:MH12CD9090|Color:Black
+END_ENTERPRISE
+Enterprise:CityDrive|Owner:Neha Kapoor|Phone:9822012345
+Company:Hyundai
+Model:i20|Price:1400|Number:MH14GH4567|Color:Red
+END_ENTERPRISE

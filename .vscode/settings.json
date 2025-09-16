@@ -4,6 +4,7 @@
         "ctime": "cpp",
         "cstdlib": "cpp",
         "iostream": "cpp",
-        "string": "cpp"
+        "string": "cpp",
+        "sstream": "cpp"
     }
 }

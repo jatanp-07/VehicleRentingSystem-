@@ -3,10 +3,11 @@
 #include <sstream>
 #include <string>
 #include <cstdlib>
+#include <vector>
 #include <ctime>
 using namespace std;
 
-
+//====================userDetails===================================
 class UserDetails
 {
 private:
@@ -42,7 +43,6 @@ public:
     UserDetails(string fname = "userDetails.txt") : filename(fname) {}
     // member function of class userDetails to register the user
 
-    
     void registerUser()
     {
         string username, password, phonenumber;
@@ -59,7 +59,7 @@ public:
             cout << "Enter phonenumber: ";
             cin >> phonenumber;
 
-            phoneCheck = true; 
+            phoneCheck = true;
             if (phonenumber.size() != 10)
             {
                 cout << "❌ Phone number must be exactly 10 digits.\n";
@@ -77,8 +77,6 @@ public:
                 }
             }
         } while (!phoneCheck);
-
-
 
         string id = generateUniqueID();
         ofstream file(filename, ios::app);
@@ -215,6 +213,160 @@ public:
     }
 };
 
+//=============================Enterprise======================================
+
+class Model
+{
+    string modelname, modelnumber, modelcolour;
+    double modelprice;
+
+public:
+    Model(string nameOfModel = "", double priceOfModel = 0.0, string phonenumberOfModel = "", string colourOfModel = "")
+        : modelname(nameOfModel), modelprice(priceOfModel), modelnumber(phonenumberOfModel), modelcolour(colourOfModel) {}
+
+    friend void displayModel(const Model &m);
+};
+
+class Company
+{
+    string companyname;
+    vector<Model *> models;
+
+public:
+    Company(string nameOfCompany = "") : companyname(nameOfCompany) {}
+
+    void addModel(Model *m) { models.push_back(m); }
+
+    void showModels() const
+    {
+        cout << "\n Company: " << companyname << "\n";
+        for (auto m : models)
+            displayModel(*m);
+    }
+
+    ~Company()
+    {
+        for (auto m : models)
+            delete m;
+    }
+};
+class Enterprises
+{
+    string Enterprisename, ownerName, OwnerPhonenumber;
+    vector<Company *> companies;
+
+public:
+    Enterprises(string nameOfEnterprise = "", string nameOfOwner = "", string phoneOfOwner = "")
+        : Enterprisename(nameOfEnterprise), ownerName(nameOfOwner), OwnerPhonenumber(phoneOfOwner) {}
+
+    void addCompany(Company *c) { companies.push_back(c); }
+
+    void showEnterprise() const
+    {
+        cout << "\nEnterprise: " << Enterprisename
+             << "\nOwner: " << ownerName
+             << "\nPhone: " << OwnerPhonenumber << "\n";
+        for (auto c : companies)
+            c->showModels();
+    }
+
+    ~Enterprises()
+    {
+        for (auto c : companies)
+            delete c;
+    }
+};
+
+vector<Enterprises *> loadData(const string &filename)
+{
+    ifstream file(filename);
+    vector<Enterprises *> enterprises;
+    if (!file.is_open())
+    {
+        cerr << "Error opening file\n";
+        return enterprises;
+    }
+
+    string line;
+    Enterprises *currentEnterprise = nullptr;
+    Company *currentCompany = nullptr;
+
+    while (getline(file, line))
+    {
+        if (line.rfind("Enterprise:", 0) == 0)
+        {
+            // parsing enetrprise
+            stringstream ss(line);
+            string part, ename, eowner, ephone;
+            while (getline(ss, part, '|'))
+            {
+                if (part.find("Enterprise:") != string::npos)
+                {
+                    ename = part.substr(11);
+                }
+                else if (part.find("Owner:") != string::npos)
+                {
+                    eowner = part.substr(6);
+                }
+                else if (part.find("Phone:") != string::npos)
+                {
+                    ephone = part.substr(6);
+                }
+            }
+            currentEnterprise = new Enterprises(ename, eowner, ephone);
+            enterprises.push_back(currentEnterprise);
+        }
+        else if (line.rfind("Company:", 0) == 0)
+        {
+            string cname = line.substr(8);
+            currentCompany = new Company(cname);
+            if (currentEnterprise)
+                currentEnterprise->addCompany(currentCompany);
+        }
+        else if (line.rfind("Model:", 0) == 0)
+        {
+            stringstream ss(line);
+            string part, mname, number, color;
+            double price = 0;
+            while (getline(ss, part, '|'))
+            {
+                if (part.find("Model:") != string::npos)
+                {
+                    mname = part.substr(6);
+                }
+                else if (part.find("Price:") != string::npos)
+                {
+                    price = stod(part.substr(6));
+                }
+                else if (part.find("Number:") != string::npos)
+                {
+                    number = part.substr(7);
+                }
+                else if (part.find("Color:") != string::npos)
+                {
+                    color = part.substr(6);
+                }
+            }
+            if (currentCompany)
+                currentCompany->addModel(new Model(mname, price, number, color));
+        }
+        else if (line == "END_ENTERPRISE")
+        {
+            currentEnterprise = nullptr;
+            currentCompany = nullptr;
+        }
+    }
+    return enterprises;
+}
+
+void displayModel(const Model &m)
+{
+    cout << "      Model: " << m.modelname
+         << " | Price: " << m.modelprice
+         << " | Number: " << m.modelnumber
+         << " | Color: " << m.modelcolour << "\n";
+}
+
 int main()
 {
     cout << "Welcome to Vehicle Rental System\n";
@@ -263,8 +415,31 @@ int main()
         }
 
         if (portalChoice == 2)
-        {
+        { 
             cout << "You have accessed the Service Provider Portal.\n";
+            vector<Enterprises *> enterprises = loadData("sellerDetails.txt");
+            cout << "\nAvailable Enterprises:\n";
+            for (size_t i = 0; i < enterprises.size(); i++)
+                cout << i + 1 << ". " << "Enterprise: " << i + 1 << " -> "
+                     << "Select to view details\n";
+
+            int choice;
+            cout << "\nEnter Enterprise number to view details: ";
+            cin >> choice;
+
+            if (choice > 0 && choice <= (int)enterprises.size())
+            {
+                enterprises[choice - 1]->showEnterprise();
+            }
+            else
+            {
+                cout << "Invalid choice!\n";
+            }
+
+            // Cleanup
+            for (auto e : enterprises)
+                delete e;
+            return 0;
         }
     }
     catch (const std::exception &e)
