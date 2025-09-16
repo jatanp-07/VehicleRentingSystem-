@@ -6,6 +6,7 @@
 #include <ctime>
 using namespace std;
 
+
 class UserDetails
 {
 private:
@@ -40,15 +41,44 @@ private:
 public:
     UserDetails(string fname = "userDetails.txt") : filename(fname) {}
     // member function of class userDetails to register the user
+
+    
     void registerUser()
     {
         string username, password, phonenumber;
+        cout << "Keep Format like yuvank_goyal (firstName_lastName)!!\n";
         cout << "Enter new username: ";
         cin >> username;
         cout << "Enter password: ";
         cin >> password;
-        cout << "Enter phonenumber: ";
-        cin >> phonenumber;
+
+        bool phoneCheck = false;
+
+        do
+        {
+            cout << "Enter phonenumber: ";
+            cin >> phonenumber;
+
+            phoneCheck = true; 
+            if (phonenumber.size() != 10)
+            {
+                cout << "❌ Phone number must be exactly 10 digits.\n";
+                phoneCheck = false;
+                continue;
+            }
+
+            for (int i = 0; i < phonenumber.size(); i++)
+            {
+                if (phonenumber[i] < '0' || phonenumber[i] > '9')
+                {
+                    cout << "❌ Phone number can contain only digits.\n";
+                    phoneCheck = false;
+                    break;
+                }
+            }
+        } while (!phoneCheck);
+
+
 
         string id = generateUniqueID();
         ofstream file(filename, ios::app);
@@ -56,10 +86,10 @@ public:
         {
             file << id << "," << username << "," << password << "," << phonenumber << "\n";
             file.close();
-            cout << "\n✅ Registration successful!\n";
+            cout << "\nRegistration successful!\n";
             cout << "-------------------------------------\n";
-            cout << " 🎯 Your Unique User ID: " << id << "\n";
-            cout << " ⚠️  Save this ID carefully; you need it to login.\n";
+            cout << " Your Unique User ID: " << id << "\n";
+            cout << " Save this ID carefully; you need it to login.\n";
             cout << "-------------------------------------\n";
         }
         else
@@ -92,15 +122,15 @@ public:
 
                 if (uid == id)
                 {
-                    cout << "\n✅ Login successful! Welcome, " << uuser << "!\n";
+                    cout << "\nLogin successful! Welcome, " << uuser << "!\n";
                     return true;
                 }
             }
-            cout << "❌ ID not found.\n";
+            cout << "ID not found.\n";
         }
 
         // Username + password login
-        cout << "\n⚠️ Too many failed ID attempts.\n";
+        cout << "\nToo many failed ID attempts.\n";
         cout << "You can login with username and password to retrieve your User ID.\n";
 
         for (int attempts = 1; attempts <= 2; attempts++)
@@ -121,13 +151,13 @@ public:
 
                 if (uuser == username && upass == password)
                 {
-                    cout << "\n✅ Login successful!\n";
-                    cout << "🎯 Your User ID is: " << uid << endl;
+                    cout << "\nLogin successful!\n";
+                    cout << "Your User ID is: " << uid << endl;
                     return true;
                 }
             }
 
-            cout << "\n❌ Invalid username or password!\n";
+            cout << "\nInvalid username or password!\n";
             cout << "Do you want to view all registered details?\n";
             cout << "1. YES\n2. NO\nEnter choice (1 or 2): ";
 
@@ -154,8 +184,8 @@ public:
 
                     if (phonechecknnumber == uuphone)
                     {
-                        cout << "\n🎯 Match Found!\n";
-                        cout << "✅ Your details are:\n";
+                        cout << "\nMatch Found!\n";
+                        cout << "Your details are:\n";
                         cout << "User ID: " << uuid << "\n";
                         cout << "Username: " << uuname << "\n";
                         cout << "Password: " << uupass << "\n";
@@ -166,7 +196,7 @@ public:
                 }
                 if (!found)
                 {
-                    cout << "\n❌ Phone number not found in records.\n";
+                    cout << "\nPhone number not found in records.\n";
                 }
 
                 cout << "\nYou can try logging in again.\n";
@@ -177,7 +207,7 @@ public:
             }
             else
             {
-                cout << "\n⚠️ Invalid choice. Skipping details.\n";
+                cout << "\nInvalid choice. Skipping details.\n";
             }
         }
 
@@ -187,7 +217,7 @@ public:
 
 int main()
 {
-    cout << "🚗 Welcome to Vehicle Rental System 🚗\n";
+    cout << "Welcome to Vehicle Rental System\n";
     cout << "-------------------------------------\n";
     cout << "Which Portal You Want To Access?\n";
     cout << "1. User Portal\n";
