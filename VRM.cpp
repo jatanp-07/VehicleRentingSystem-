@@ -7,15 +7,7 @@
 #include <ctime>
 using namespace std;
 
-//=============================Enterprise======================================
-class Displayable
-{
-    public:
-     virtual void show() const = 0;
-     virtual ~Displayable(){};
-};
-
-class Model : public Displayable
+class Model
 {
     string modelname, modelnumber, modelcolour;
     double modelprice;
@@ -26,13 +18,13 @@ public:
 
     friend void displayModel(const Model &m);
 
-     void show() const override //polymorphism for showing details
+     void showModel() const
     {
         displayModel(*this);
     }
 };
 
-class Company : public Displayable
+class Company
 {
     string companyname;
     vector<Model *> models;
@@ -43,7 +35,7 @@ public:
     string getCompanyName() const { return companyname; }
 
     void addModel(Model *m) { models.push_back(m); }
-    void show() const override
+    void showCompany() const
     {
         cout << "\n Company: " << companyname << "\n";
         for (auto m : models)
@@ -56,7 +48,7 @@ public:
             delete m;
     }
 };
-class Variety : public Displayable
+class Variety
 {
     string vname;
     vector<Company *> companies;
@@ -65,11 +57,11 @@ public:
     Variety(string varietyname = "") : vname(varietyname) {};
     vector<Company *> &getCompanies() { return companies; }
     void addCompany(Company *c) { companies.push_back(c); };
-    void show() const override
+    void showVariety() const
     {
         cout << "\n  Variety: " << vname << "\n";
         for (auto c : companies)
-            c->show();
+            c->showCompany();
     }
     ~Variety()
     {
@@ -78,7 +70,7 @@ public:
     }
 };
 
-class Enterprises : public Displayable
+class Enterprises
 {
     string Enterprisename, ownerName, OwnerPhonenumber;
     vector<Company *> companies;
@@ -91,13 +83,13 @@ public:
     void addCompany(Company *c) { companies.push_back(c); }
     void addVariety(Variety *v) { varieties.push_back(v); }
     void getEnterpriseName() const { cout << "-> " << Enterprisename; }
-    void show() const override
+    void show() const
     {
         cout << "\nEnterprise: " << Enterprisename
              << "\nOwner: " << ownerName
              << "\nPhone: " << OwnerPhonenumber << "\n";
         for (auto v : varieties)
-            v->show();
+            v->showVariety();
     }
 
     ~Enterprises()
@@ -195,32 +187,6 @@ class UserDetails
 {
 private:
     string filename;
-    string generateUniqueID()
-    {
-        srand(time(0));
-        string id;
-        bool exists;
-        do
-        {
-            exists = false;
-            int num = 10000 + rand() % 90000; // genarte the random unique id
-            id = to_string(num);
-            ifstream file(filename);
-            string line, uid, uname, upass;
-            while (getline(file, line))
-            {
-                stringstream ss(line);
-                getline(ss, uid, ',');
-                if (uid == id)
-                {
-                    exists = true;
-                    break;
-                }
-            }
-            file.close();
-        } while (exists);
-        return id;
-    }
 
 public:
     UserDetails(string fname = "userDetails.txt") : filename(fname) {}
@@ -389,16 +355,12 @@ public:
             }
         } while (!phoneCheck);
 
-        string id = generateUniqueID();
         ofstream file(filename, ios::app);
         if (file.is_open())
         {
-            file << id << "," << username << "," << password << "," << phonenumber << "\n";
+            file  << username << "," << password << "," << phonenumber << "\n";
             file.close();
             cout << "\nRegistration successful!\n";
-            cout << "-------------------------------------\n";
-            cout << " Your Unique User ID: " << id << "\n";
-            cout << " Save this ID carefully; you need it to login.\n";
             cout << "-------------------------------------\n";
             UserEnterpriseDetailEntry();
         }
@@ -411,38 +373,8 @@ public:
     /// member function of class userDetails to login the user
     bool loginUser()
     {
-        string id, password, username, phonenumber;
+        string password, username, phonenumber;
         bool success = false;
-
-        // 2 attempts for ID login
-        for (int attempt = 1; attempt <= 2; attempt++)
-        {
-            cout << "Enter your 5-digit User ID (Attempt " << attempt << "/2): ";
-            cin >> id;
-
-            ifstream file(filename);
-            string line, uid, uuser, upass, uphone;
-            while (getline(file, line))
-            {
-                stringstream ss(line);
-                getline(ss, uid, ',');
-                getline(ss, uuser, ',');
-                getline(ss, upass, ',');
-                getline(ss, uphone, ',');
-
-                if (uid == id)
-                {
-                    cout << "\nLogin successful! Welcome, " << uuser << "!\n";
-                    UserEnterpriseDetailEntry();
-                    return true;
-                }
-            }
-            cout << "ID not found.\n";
-        }
-
-        // Username + password login
-        cout << "\nToo many failed ID attempts.\n";
-        cout << "You can login with username and password to retrieve your User ID.\n";
 
         for (int attempts = 1; attempts <= 2; attempts++)
         {
@@ -452,18 +384,16 @@ public:
             cin >> password;
 
             ifstream file(filename);
-            string line, uid, uuser, upass;
+            string line, uuser, upass;
             while (getline(file, line))
             {
                 stringstream ss(line);
-                getline(ss, uid, ',');
                 getline(ss, uuser, ',');
                 getline(ss, upass, ',');
 
                 if (uuser == username && upass == password)
                 {
                     cout << "\nLogin successful!\n";
-                    cout << "Your User ID is: " << uid << endl;
                     return true;
                 }
             }
@@ -484,11 +414,10 @@ public:
                 bool found = false;
 
                 ifstream file2(filename);
-                string line, uuid, uuname, uupass, uuphone;
+                string line, uuname, uupass, uuphone;
                 while (getline(file2, line))
                 {
                     stringstream ss(line);
-                    getline(ss, uuid, ',');
                     getline(ss, uuname, ',');
                     getline(ss, uupass, ',');
                     getline(ss, uuphone, ',');
@@ -497,7 +426,6 @@ public:
                     {
                         cout << "\nMatch Found!\n";
                         cout << "Your details are:\n";
-                        cout << "User ID: " << uuid << "\n";
                         cout << "Username: " << uuname << "\n";
                         cout << "Password: " << uupass << "\n";
                         cout << "Phone: " << uuphone << "\n";
