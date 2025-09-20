@@ -89,7 +89,6 @@ public:
             file.close();
             cout << "\nRegistration successful!\n";
             cout << "-------------------------------------\n";
-            UserEnterpriseDetailEntry();
         }
         else
         {
