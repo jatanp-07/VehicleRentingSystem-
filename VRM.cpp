@@ -19,7 +19,7 @@ public:
 
     friend void displayModel(const Model &m);
 
-     void showModel() const
+    void showModel() const
     {
         displayModel(*this);
     }
@@ -360,8 +360,8 @@ public:
         ofstream file(filename, ios::app);
         if (file.is_open())
         {
-            file  << username << "," << password << "," << phonenumber << "\n";
-            file  << username << "," << password << "," << phonenumber << "\n";
+            file << username << "," << password << "," << phonenumber << "\n";
+            file << username << "," << password << "," << phonenumber << "\n";
             file.close();
             cout << "\nRegistration successful!\n";
             cout << "-------------------------------------\n";
@@ -496,9 +496,9 @@ private:
     }
 
 public:
-    //default constructor 
+    // default constructor
     EnterpriseDetails(string fname = "EnterpriseDetails.txt") : filePath(fname) {}
-    //verification of the details`
+    // verification of the details`
     friend bool verifyEnterprise(const EnterpriseDetails &obj, string givenId, string givenPass);
     // enterprise regis.
     void registerEnterprise()
@@ -592,7 +592,7 @@ public:
     }
 };
 
-// friend func def using 
+// friend func def using
 bool verifyEnterprise(const EnterpriseDetails &obj, string givenId, string givenPass)
 {
     return (obj.entId == givenId && obj.entPass == givenPass);
