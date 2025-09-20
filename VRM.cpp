@@ -3,8 +3,10 @@
 #include <sstream>
 #include <string>
 #include <cstdlib>
+#include <vector>
 #include <ctime>
 using namespace std;
+
 
 class UserDetails
 {
@@ -41,6 +43,7 @@ public:
     UserDetails(string fname = "userDetails.txt") : filename(fname) {}
     // member function of class userDetails to register the user
 
+    
     void registerUser()
     {
         string username, password, phonenumber;
@@ -76,17 +79,17 @@ public:
             }
         } while (!phoneCheck);
 
+
+
         string id = generateUniqueID();
         ofstream file(filename, ios::app);
         if (file.is_open())
         {
-            file << id << "," << username << "," << password << "," << phonenumber << "\n";
+            file  << username << "," << password << "," << phonenumber << "\n";
             file.close();
             cout << "\nRegistration successful!\n";
             cout << "-------------------------------------\n";
-            cout << " Your Unique User ID: " << id << "\n";
-            cout << " Save this ID carefully; you need it to login.\n";
-            cout << "-------------------------------------\n";
+            UserEnterpriseDetailEntry();
         }
         else
         {
@@ -97,37 +100,8 @@ public:
     /// member function of class userDetails to login the user
     bool loginUser()
     {
-        string id, password, username, phonenumber;
+        string password, username, phonenumber;
         bool success = false;
-
-        // 2 attempts for ID login
-        for (int attempt = 1; attempt <= 2; attempt++)
-        {
-            cout << "Enter your 5-digit User ID (Attempt " << attempt << "/2): ";
-            cin >> id;
-
-            ifstream file(filename);
-            string line, uid, uuser, upass, uphone;
-            while (getline(file, line))
-            {
-                stringstream ss(line);
-                getline(ss, uid, ',');
-                getline(ss, uuser, ',');
-                getline(ss, upass, ',');
-                getline(ss, uphone, ',');
-
-                if (uid == id)
-                {
-                    cout << "\nLogin successful! Welcome, " << uuser << "!\n";
-                    return true;
-                }
-            }
-            cout << "ID not found.\n";
-        }
-
-        // Username + password login
-        cout << "\nToo many failed ID attempts.\n";
-        cout << "You can login with username and password to retrieve your User ID.\n";
 
         for (int attempts = 1; attempts <= 2; attempts++)
         {
@@ -137,18 +111,16 @@ public:
             cin >> password;
 
             ifstream file(filename);
-            string line, uid, uuser, upass;
+            string line, uuser, upass;
             while (getline(file, line))
             {
                 stringstream ss(line);
-                getline(ss, uid, ',');
                 getline(ss, uuser, ',');
                 getline(ss, upass, ',');
 
                 if (uuser == username && upass == password)
                 {
                     cout << "\nLogin successful!\n";
-                    cout << "Your User ID is: " << uid << endl;
                     return true;
                 }
             }
@@ -169,11 +141,10 @@ public:
                 bool found = false;
 
                 ifstream file2(filename);
-                string line, uuid, uuname, uupass, uuphone;
+                string line, uuname, uupass, uuphone;
                 while (getline(file2, line))
                 {
                     stringstream ss(line);
-                    getline(ss, uuid, ',');
                     getline(ss, uuname, ',');
                     getline(ss, uupass, ',');
                     getline(ss, uuphone, ',');
@@ -182,7 +153,6 @@ public:
                     {
                         cout << "\nMatch Found!\n";
                         cout << "Your details are:\n";
-                        cout << "User ID: " << uuid << "\n";
                         cout << "Username: " << uuname << "\n";
                         cout << "Password: " << uupass << "\n";
                         cout << "Phone: " << uuphone << "\n";
@@ -400,30 +370,6 @@ int main()
         if (portalChoice == 2)
         {
             cout << "You have accessed the Service Provider Portal.\n";
-            cout << "1. Register Enterprise\n";
-            cout << "2. Login Enterprise\n";
-            cout << "Enter your choice (1 or 2): ";
-            int enterpriseOptn;
-            cin >> enterpriseOptn;
-
-            EnterpriseDetails *enterprisePtr = new EnterpriseDetails();
-
-            switch (enterpriseOptn)
-            {
-            case 1:
-                enterprisePtr->registerEnterprise();
-                break;
-
-            case 2:
-                enterprisePtr->loginEnterprise();
-                break;
-
-            default:
-                cout << "Invalid input! Try once again!\n";
-                break;
-            }
-
-            delete enterprisePtr;
         }
     }
     catch (const std::exception &e)
